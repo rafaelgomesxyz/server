@@ -1,3 +1,4 @@
+const Sentry = require('../../../instrument');
 const CustomError = require('../../class/CustomError');
 const Pool = require('../../class/Connection');
 const Utils = require('../../class/Utils');
@@ -62,6 +63,7 @@ class SgIds {
 			if (connection) {
 				connection.release();
 			}
+			Sentry.captureException(err);
 			console.log(
 				`GET ${req.route.path} failed with params ${JSON.stringify(
 					req.params

@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const Sentry = require('./instrument');
 const cors = require('cors');
 const express = require('express');
 const routes = require('./app/routes');
@@ -23,6 +24,13 @@ app.use((req, res, next) => {
 		// Handle default behavior or show an error page
 		res.status(404).send('Page not found');
 	}
+});
+
+Sentry.setupExpressErrorHandler(app);
+
+app.use((err, req, res, next) => {
+  res.statusCode = 500;
+  res.end(res.sentry + "\n");
 });
 
 app.listen(port, () => {

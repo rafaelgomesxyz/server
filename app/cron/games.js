@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+const Sentry = require('./cronInstrument');
 
 const Pool = require('../class/Connection');
 const Utils = require('../class/Utils');
@@ -31,6 +32,8 @@ async function doGamesCronJob() {
 		if (connection) {
 			connection.release();
 		}
+		Sentry.captureException(err);
+		await Sentry.flush(2000).catch(() => {});
 		Utils.log(jobLog, `Games update failed: ${err}`);
 	}
 	fs.writeFileSync(logPath, jobLog.join('\n'));

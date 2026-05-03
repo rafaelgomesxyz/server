@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+const Sentry = require('./cronInstrument');
 
 const CustomError = require('../class/CustomError');
 const Pool = require('../class/Connection');
@@ -32,6 +33,8 @@ async function doRcvSgToolsCronJob() {
 		if (connection) {
 			connection.release();
 		}
+		Sentry.captureException(err);
+		await Sentry.flush(2000).catch(() => {});
 		Utils.log(jobLog, `RCV games update from SGTools failed: ${err}`);
 	}
 	fs.writeFileSync(logPath, jobLog.join('\n'));

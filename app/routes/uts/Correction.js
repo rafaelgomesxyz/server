@@ -1,3 +1,4 @@
+const Sentry = require('../../../instrument');
 const CustomError = require('../../class/CustomError');
 const Pool = require('../../class/Connection');
 const Request = require('../../class/Request');
@@ -106,6 +107,7 @@ class Correction {
 			if (connection) {
 				connection.release();
 			}
+			Sentry.captureException(err);
 			console.log(
 				`PUT ${req.route.path} failed with params ${JSON.stringify(
 					req.params
