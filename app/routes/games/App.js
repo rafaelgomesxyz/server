@@ -470,7 +470,10 @@ class App {
 			if (isStoreResponseOk && !removed) {
 				const elements = storeResponse.html.querySelectorAll('[data-ds-bundleid]');
 				for (const element of elements) {
-					bundles.push(parseInt(element.dataset.dsBundleid));
+					const bundleId = parseInt(element.dataset.dsBundleid);
+					if (!Number.isNaN(bundleId)) {
+						bundles.push(bundleId);
+					}
 				}
 			}
 			await Pool.beginTransaction(connection);

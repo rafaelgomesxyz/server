@@ -183,7 +183,10 @@ class Bundle {
 		if (isStoreResponseOk && !removed) {
 			const elements = storeResponse.html.querySelectorAll('[data-ds-appid]');
 			for (const element of elements) {
-				apps.push(parseInt(element.dataset.dsAppid));
+				const appId = parseInt(element.dataset.dsAppid);
+				if (!Number.isNaN(appId)) {
+					apps.push(appId);
+				}
 			}
 		}
 		await Pool.beginTransaction(connection);
