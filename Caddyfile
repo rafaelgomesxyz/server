@@ -1,0 +1,8 @@
+esgst.rafaelgomes.xyz, uts.rafaelgomes.xyz {
+  log {
+    output stdout
+    format console
+  }
+
+  reverse_proxy api:3000
+}

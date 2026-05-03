@@ -1,3 +1,3 @@
 #!/bin/bash
 source ~/.nvm/nvm.sh
-$(nvm which node) $@ >> ./cron.log 2>&1
+DB_HOST=127.0.0.1 $(nvm which node) $@ >> ./cron.log 2>&1

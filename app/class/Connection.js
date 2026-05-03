@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const defaultConfig = require('../config').connection;
 
 class _Pool {

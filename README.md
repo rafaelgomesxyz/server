@@ -2,17 +2,19 @@
 
 My Node.js server which contains APIs for my applications.
 
-Available at https://rafaelgssa.com.
+## Endpoints
 
-Currently hosted on [Umbler](https://umbler.com/us). To deploy:
+This server hosts two main applications:
 
-```
-git remote add umbler $UMBLER_REMOTE_URL
-git push umbler master
-```
-
----
+- **ESGST (Enhanced Steam Gifts & Steam Trades)**: https://esgst.rafaelgomes.xyz
+- **UTS (Universal Trakt Scrobbler)**: https://uts.rafaelgomes.xyz
 
 ## Documentation
 
-https://rafaelgssa.github.io/server/
+API documentation is available for ESGST only:
+
+https://esgst.rafaelgomes.xyz/docs
+
+## Hosting
+
+Currently hosted on [Hetzner](https://www.hetzner.com/).
