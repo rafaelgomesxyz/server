@@ -5,7 +5,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const Sentry = require('./cronInstrument');
 
 const Pool = require('../class/Connection');
-const Request = require('../class/Request');
+const SteamGiftsRequest = require('../class/SteamGiftsRequest');
 const Utils = require('../class/Utils');
 
 const logPath = path.resolve(__dirname, './uh.log');
@@ -34,6 +34,9 @@ async function doUhCronJob() {
 		await Sentry.flush(2000).catch(() => {});
 		Utils.log(jobLog, `UH histories update failed: ${err}`);
 	}
+	await SteamGiftsRequest.close().catch((err) =>
+		Utils.log(jobLog, `SteamGifts browser cleanup failed: ${err}`)
+	);
 	fs.writeFileSync(logPath, jobLog.join('\n'));
 	process.exit();
 }
@@ -67,7 +70,7 @@ async function updateUh(connection) {
 			Utils.log(jobLog, `Updating UH history for ${steamId}...`);
 			const url = `https://www.steamgifts.com/go/user/${steamId}`;
 			try {
-				const response = await Request.head(url);
+				const response = await SteamGiftsRequest.head(url);
 				const parts = response.url.split('/user/');
 				const username = parts && parts.length === 2 ? parts[1] : '[DELETED]';
 				const values = {

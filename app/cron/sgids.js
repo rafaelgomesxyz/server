@@ -7,6 +7,7 @@ const Sentry = require('./cronInstrument');
 const CustomError = require('../class/CustomError');
 const Pool = require('../class/Connection');
 const Request = require('../class/Request');
+const SteamGiftsRequest = require('../class/SteamGiftsRequest');
 const Utils = require('../class/Utils');
 const Game = require('../routes/games/Game');
 
@@ -41,6 +42,9 @@ async function doSgidsJob() {
 		await Sentry.flush(2000).catch(() => {});
 		Utils.log(jobLog, `SG IDs update failed: ${err}`);
 	}
+	await SteamGiftsRequest.close().catch((err) =>
+		Utils.log(jobLog, `SteamGifts browser cleanup failed: ${err}`)
+	);
 	fs.writeFileSync(logPath, jobLog.join('\n'));
 	process.exit();
 }
@@ -105,7 +109,7 @@ async function updateSgids(connection) {
 			sub: {},
 		};
 		const url = `https://www.steamgifts.com/giveaways/search?page=${page}&format=json`;
-		const response = await Request.get(url);
+		const response = await SteamGiftsRequest.get(url);
 
 		if (!response || !response.json || !response.json.success) {
 			throw new CustomError(CustomError.COMMON_MESSAGES.sg, 500);

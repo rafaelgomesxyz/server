@@ -3,8 +3,26 @@ services:
     build: .
     restart: unless-stopped
     env_file: .env
+    environment:
+      DB_HOST: mysql
     depends_on:
       - mysql
+    networks:
+      - appnet
+
+  cron:
+    build: .
+    restart: unless-stopped
+    command: ["./docker/cron-entrypoint.sh"]
+    env_file: .env
+    environment:
+      DB_HOST: mysql
+      STEAMGIFTS_PLAYWRIGHT_HEADLESS: "false"
+      STEAMGIFTS_PLAYWRIGHT_USER_DATA_DIR: /app/.cache/steamgifts-playwright-chrome
+    depends_on:
+      - mysql
+    volumes:
+      - cron_cache:/app/.cache
     networks:
       - appnet
 
@@ -43,6 +61,7 @@ volumes:
   mysql_data:
   caddy_data:
   caddy_config:
+  cron_cache:
 
 networks:
   appnet:
