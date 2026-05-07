@@ -141,10 +141,13 @@ class SteamGiftsRequest {
 		if (!SteamGiftsRequest.contextPromise) {
 			return;
 		}
-		const context = await SteamGiftsRequest.contextPromise;
-		await context.close();
-		SteamGiftsRequest.contextPromise = null;
-		SteamGiftsRequest.page = null;
+		try {
+			const context = await SteamGiftsRequest.contextPromise;
+			await context.close();
+		} finally {
+			SteamGiftsRequest.contextPromise = null;
+			SteamGiftsRequest.page = null;
+		}
 	}
 }
 
