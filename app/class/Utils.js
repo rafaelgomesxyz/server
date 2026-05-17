@@ -73,7 +73,10 @@ class Utils {
 	static validateParams(params, validator) {
 		const paramKeys = Object.keys(params);
 		const validatorKeys = Object.keys(validator);
-		if (paramKeys.filter((paramKey) => !validatorKeys.includes(paramKey)).length > 0) {
+		const invalidParamKeys = paramKeys.filter(
+			(paramKey) => !validatorKeys.includes(paramKey) && !/^\d+$/.test(paramKey)
+		);
+		if (invalidParamKeys.length > 0) {
 			throw new CustomError(
 				`Invalid parameters. Only the following parameters are allowed: ${validatorKeys.join(
 					', '
