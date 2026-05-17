@@ -163,7 +163,7 @@ class Ncv {
 		const booleanRegex = /^(true|false|1|0|)$/i;
 		const trueBooleanRegex = /^(true|1|)$/i;
 		const idsMessage = 'Must be a comma-separated list of ids e.g. 400,500,600.';
-		const idsRegex = /^((\d+,)*\d+$|$)/;
+		const idsRegex = /^$|^([^,]+,)*[^,]+$/;
 		const dateMessage = 'Must be a date in the format YYYY-MM-DD.';
 		const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 		const params = Object.assign({}, req.query);
@@ -265,11 +265,22 @@ class Ncv {
 			if (Utils.isSet(params[`${type}_ids`]) && !params[`${type}_ids`]) {
 				continue;
 			}
-			const ids = params[`${type}_ids`]
-				? params[`${type}_ids`].split(',').map((id) => parseInt(id))
-				: [];
+			const rawIds = params[`${type}_ids`] ? params[`${type}_ids`].split(',') : [];
+			const ids = [];
+			const invalidIds = [];
+			for (const id of rawIds) {
+				if (/^\d+$/.test(id)) {
+					ids.push(parseInt(id));
+				} else {
+					invalidIds.push(id);
+				}
+			}
 			let conditions = [];
-			if (params[`${type}_ids`]) {
+			if (params[`${type}_ids`] && ids.length === 0) {
+				result.not_found[`${type}s`].push(...invalidIds);
+				continue;
+			}
+			if (ids.length > 0) {
 				conditions.push(
 					`(${ids.map((id) => `g_tncv.${type}_id = ${connection.escape(id)}`).join(' OR ')})`
 				);
@@ -357,7 +368,7 @@ class Ncv {
 				}
 				idsFound.push(id);
 			}
-			const idsNotFound = ids.filter((id) => !idsFound.includes(id));
+			const idsNotFound = [...ids.filter((id) => !idsFound.includes(id)), ...invalidIds];
 			for (const id of idsNotFound) {
 				result.not_found[`${type}s`].push(id);
 			}

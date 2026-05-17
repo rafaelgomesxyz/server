@@ -88,7 +88,7 @@ class SgIds {
 	 */
 	static async _find(connection, req) {
 		const idsMessage = 'Must be a comma-separated list of ids e.g. 400,500,600.';
-		const idsRegex = /^((\d+,)*\d+$|$)/;
+		const idsRegex = /^$|^([^,]+,)*[^,]+$/;
 		const params = Object.assign({}, req.query);
 		const validator = {
 			app_ids: {
@@ -119,11 +119,22 @@ class SgIds {
 			if (Utils.isSet(params[`${type}_ids`]) && !params[`${type}_ids`]) {
 				continue;
 			}
-			const ids = params[`${type}_ids`]
-				? params[`${type}_ids`].split(',').map((id) => parseInt(id))
-				: [];
+			const rawIds = params[`${type}_ids`] ? params[`${type}_ids`].split(',') : [];
+			const ids = [];
+			const invalidIds = [];
+			for (const id of rawIds) {
+				if (/^\d+$/.test(id)) {
+					ids.push(parseInt(id));
+				} else {
+					invalidIds.push(id);
+				}
+			}
 			let conditions = [];
-			if (params[`${type}_ids`]) {
+			if (params[`${type}_ids`] && ids.length === 0) {
+				result.not_found[`${type}s`].push(...invalidIds);
+				continue;
+			}
+			if (ids.length > 0) {
 				conditions.push(
 					`(${ids.map((id) => `g_ts.${type}_id = ${connection.escape(id)}`).join(' OR ')})`
 				);
@@ -148,7 +159,7 @@ class SgIds {
 				result.found[`${type}s`][id] = row.sg_id;
 				idsFound.push(id);
 			}
-			const idsNotFound = ids.filter((id) => !idsFound.includes(id));
+			const idsNotFound = [...ids.filter((id) => !idsFound.includes(id)), ...invalidIds];
 			for (const id of idsNotFound) {
 				result.not_found[`${type}s`].push(id);
 			}

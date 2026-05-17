@@ -136,7 +136,7 @@ class Games {
 		const booleanRegex = /^(true|false|1|0|)$/i;
 		const trueBooleanRegex = /^(true|1|)$/i;
 		const idsMessage = 'Must be a comma-separated list of ids e.g. 400,500,600.';
-		const idsRegex = /^((\d+,)*\d+$|$)/;
+		const idsRegex = /^$|^([^,]+,)*[^,]+$/;
 		const filtersMessage = '';
 		const filtersRegex = /.*/;
 		const params = Object.assign({}, req.query);
@@ -223,21 +223,34 @@ class Games {
 			if (!params[`${type}_ids`]) {
 				continue;
 			}
-			const ids = params[`${type}_ids`].split(',').map((id) => parseInt(id));
+			const rawIds = params[`${type}_ids`].split(',');
+			const ids = [];
+			const invalidIds = [];
+			for (const id of rawIds) {
+				if (/^\d+$/.test(id)) {
+					ids.push(parseInt(id));
+				} else {
+					invalidIds.push(id);
+				}
+			}
 			let items;
-			switch (type) {
-				case 'app': {
-					items = await App.get(connection, req, ids);
-					break;
+			if (ids.length > 0) {
+				switch (type) {
+					case 'app': {
+						items = await App.get(connection, req, ids);
+						break;
+					}
+					case 'bundle': {
+						items = await Bundle.get(connection, req, ids);
+						break;
+					}
+					case 'sub': {
+						items = await Sub.get(connection, req, ids);
+						break;
+					}
 				}
-				case 'bundle': {
-					items = await Bundle.get(connection, req, ids);
-					break;
-				}
-				case 'sub': {
-					items = await Sub.get(connection, req, ids);
-					break;
-				}
+			} else {
+				items = [];
 			}
 			const idsFound = [];
 			for (const item of items) {
@@ -257,7 +270,7 @@ class Games {
 				}
 				idsFound.push(parseInt(id));
 			}
-			const idsNotFound = ids.filter((id) => !idsFound.includes(id));
+			const idsNotFound = [...ids.filter((id) => !idsFound.includes(id)), ...invalidIds];
 			for (const id of idsNotFound) {
 				if (params.join_all) {
 					result.not_found.push({
