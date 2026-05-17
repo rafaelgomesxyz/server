@@ -2,6 +2,7 @@ SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 CRON_TZ=UTC
 DB_HOST=mysql
+PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 STEAMGIFTS_PLAYWRIGHT_HEADLESS=false
 STEAMGIFTS_PLAYWRIGHT_USER_DATA_DIR=/app/.cache/steamgifts-playwright-chrome
 

@@ -1,6 +1,7 @@
 FROM mcr.microsoft.com/playwright:v1.59.1-noble
 
 WORKDIR /app
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends cron \
